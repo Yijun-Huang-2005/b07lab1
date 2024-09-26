@@ -1,3 +1,6 @@
+import java.io.*;
+import java.util.*;
+
 public class Polynomial {
     double[] coefficients;
     int[] exponents;
@@ -17,6 +20,73 @@ public class Polynomial {
         }
         for(int i = 0; i < exponents.length; i++) {
             this.exponents[i] = exponents[i];
+        }
+    }
+
+    public boolean find_negative(String s) {
+        for(int i = 0; i < s.length(); i++) {
+            if(s.charAt(i) == '-') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Polynomial(File f) throws IOException {
+        Scanner s = new Scanner(f);
+        String line = s.nextLine();
+        String[] terms = line.split("\\+");
+        int term_num = terms.length;
+        for(int i = 0; i < terms.length; i++) {
+            if(find_negative(terms[i])) {
+                if(terms[i].charAt(0) == '-') {
+                    String[] sub_terms = terms[i].split("-");
+                    term_num = term_num + sub_terms.length - 2;
+                }
+                else {
+                    String[] sub_terms = terms[i].split("-");
+                    term_num = term_num + sub_terms.length - 1;
+                }
+            }
+        }
+        String[] all_terms = new String[term_num];
+        int pointer = 0;
+        for(int i = 0; i < terms.length; i++) {
+            if(find_negative(terms[i])) {
+                if(terms[i].charAt(0) == '-') {
+                    String[] sub_terms = terms[i].split("-");
+                    for(int j = 1; j < sub_terms.length; j++) {
+                        all_terms[pointer] = "-" + sub_terms[j];
+                        pointer++;
+                    }
+                }
+                else {
+                    String[] sub_terms = terms[i].split("-");
+                    all_terms[pointer] = sub_terms[0];
+                    pointer++;
+                    for(int j = 1; j < sub_terms.length; j++) {
+                        all_terms[pointer] = "-" + sub_terms[j];
+                        pointer++;
+                    }
+                }
+            }
+            else {
+                all_terms[pointer] = terms[i];
+                pointer++;
+            }
+        }
+        this.coefficients = new double[term_num];
+        this.exponents = new int[term_num];
+        for(int i = 0; i < term_num; i++) {
+            String[] coe_exp = all_terms[i].split("x");
+            if(coe_exp.length == 1) {
+                this.coefficients[i] = Double.parseDouble(coe_exp[0]);
+                this.exponents[i] = 0;
+            }
+            else {
+                this.coefficients[i] = Double.parseDouble(coe_exp[0]);
+                this.exponents[i] = Integer.parseInt(coe_exp[1]);
+            }
         }
     }
 
@@ -131,5 +201,40 @@ public class Polynomial {
 
     public boolean hasRoot(double r) {
         return evaluate(r) == 0.0;
+    }
+
+    public void saveToFile(String name) throws IOException {
+        FileWriter output = new FileWriter(name, false);
+        String result = "";
+        for(int i = 0; i < this.coefficients.length; i++) {
+            if(this.exponents[i] == 0) {
+                if(this.coefficients[i] < 0) {
+                    result = result + this.coefficients[i];
+                }
+                else {
+                    if(i == 0) {
+                        result = result + this.coefficients[i];
+                    }
+                    else {
+                        result = result + "+" + this.coefficients[i];
+                    }
+                }
+            }
+            else {
+                if(this.coefficients[i] < 0) {
+                    result = result + this.coefficients[i] + "x" + this.exponents[i];
+                }
+                else {
+                    if(i == 0) {
+                        result = result + this.coefficients[i] + "x" + this.exponents[i];
+                    }
+                    else {
+                        result = result + "+" + this.coefficients[i] + "x" + this.exponents[i];
+                    }
+                }
+            }
+        }
+        output.append(result);
+        output.close();
     }
 }

@@ -1,5 +1,8 @@
+import java.io.*;
+import java.util.*;
+
 public class Driver {
-    public static void main(String [] args) {
+    public static void main(String [] args) throws IOException {
         Polynomial p = new Polynomial();
         System.out.println(p.evaluate(3));
         double [] c1 = {6,2,3,5};
@@ -20,5 +23,10 @@ public class Driver {
             System.out.println("0 is a root of m");
         else
             System.out.println("0 is not a root of m");
+        Polynomial from_file = new Polynomial(new File("test.txt"));
+        for(int i = 0; i < from_file.coefficients.length; i++) {
+            System.out.println(from_file.coefficients[i] + " " + from_file.exponents[i]);
+        }
+        from_file.saveToFile("output.txt");
     }
 }
